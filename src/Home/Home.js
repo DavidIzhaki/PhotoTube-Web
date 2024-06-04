@@ -1,15 +1,23 @@
 import React, { useState , useContext, useEffect} from 'react';
 import './Home.css';
-import { VideoContext } from '../Videos/VideoContext';
+import videos from '../Videos/videos_db.json';
 import VideoList from '../Videos/VideoList';
 import SearchBar from '../SearchBar/SearchBar';
+import { useNavigate } from 'react-router-dom';
+
+
 function HomePage() {
-  
-const videoData = useContext(VideoContext);
-  const [videoList, setVideoList] = useState(videoData);
-  const doSearch = function (q) {
-    setVideoList(videoData.filter((video) => video.title.includes(q)));
+
+
+    const navigate = useNavigate();
+    const [videoList, setVideoList] = useState(videos);
+
+    const doSearch = function (q) {
+    setVideoList(videoList.filter((video) => video.title.includes(q)));
   }
+    const addVideo =() => {
+        navigate('/add-video');
+    }
 
   return (
     <div className="home">

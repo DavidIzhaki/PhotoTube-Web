@@ -15,12 +15,31 @@ function SignIn() {
     const { setUser } = useUser();
     const handleSignIn = (e) => {
         e.preventDefault();
+
+        // Check if username or password are empty
+        if (!username || !password) {
+            alert('fields cannot be empty.');
+            return;
+        }
+
+        // Validation for username length
+        if (username.length < 4) {
+            alert('Username must be at least 4 characters long.');
+            return;
+        }
+
+        // check if password has at least 8 characters and include both letters and digits.
+        if (password.length < 8 || !/\d/.test(password) || !/[a-zA-Z]/.test(password)) {
+            alert('Password must be at least 8 characters and include both letters and digits.');
+            return;
+        }
+        // check if input details == user details
         const users = JSON.parse(sessionStorage.getItem('users')) || [];
         const user = users.find(u => u.username === username && u.password === password);
 
         if (user) {
             setUser(user); 
-            navigate('/'); // Redirect to home or dashboard page
+            navigate('/'); // redirect to home
         } else {
             alert('Invalid credentials');
         }
@@ -59,7 +78,7 @@ function SignIn() {
                 </div>
                 <button type="submit" className="login">Login</button>
                 <div className="footer">
-                    <span onClick={() => navigate('/registr')} >Sign up</span>
+                    <span onClick={() => navigate('/register')} >Sign up</span>
                     <span >Forgot Password?</span>
                 </div>
             </form>

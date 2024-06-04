@@ -10,6 +10,7 @@ import LeftMenu from './LeftMenu/LeftMenu';
 import Sidebar from './LeftMenu/Sidebar'; // Assuming you have a Sidebar component
 import './App.css';
 import './AppContent.css';
+import AddVideo from "./Videos/AddVideo";
 
 function AppContent() {
     const { darkMode } = useContext(DarkModeContext);
@@ -40,6 +41,7 @@ function AppContent() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/register" element={<RegisterPage />} />
+                <Route path="/add-video" element={<AddVideo />} />
             </Routes>
             </div>
         </div>
