@@ -155,45 +155,39 @@ function VideoPage() {
 
   };
 
-
-  
-  const fetchVideoDetails = useCallback(async (vidId, token) => {
-    const response = await fetch(`http://localhost:1324/api/videos/${vidId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    if (!response.ok) {
-      throw new Error(`Failed to fetch video details: ${response.status} ${response.statusText}`);
-    }
-    return response.json();
-  }, []);
-
-  const fetchRecommendations = useCallback(async () => {
-    if (!user) {
-      console.log("User must be logged in to fetch recommendations.");
+  const fetchRecommendations = async () => {
+    if (!user || !videoId) {
+      console.log("User must be logged in and videoId must be available to fetch recommendations.");
       return;
     }
-
+  
     const token = localStorage.getItem('token');
     if (!token) {
       console.log("No token found, user must be logged in.");
       return;
     }
+    const userId2 = localStorage.getItem('userId');
 
     try {
-      const response = await fetch(`http://localhost:1324/api/videos/${videoId}/recommendations`, {
-        method: 'GET',
+      const payload = {
+        userId: userId2,
+        videoId: videoId
+      };
+     
+  
+      const response = await fetch(`http://localhost:1324/api/videos/recommendations`, {
+        method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`, // Include the token here
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
       });
-
+  
       if (!response.ok) {
         throw new Error(`Failed to fetch recommendations: ${response.status} ${response.statusText}`);
       }
-
+  
       const data = await response.json();
       if (data.recommendations && data.recommendations.length) {
         const videoDetails = await Promise.all(data.recommendations.map(vidId => fetchVideoDetails(vidId, token)));
@@ -205,18 +199,25 @@ function VideoPage() {
     } catch (error) {
       console.error('Error fetching recommendations:', error);
     }
-  }, [videoId, user, fetchVideoDetails]);
-
-  useEffect(() => {
-    console.log('Video ID has changed to:', videoId); // Check if videoId updates
-    if (videoId && user) {
-      fetchRecommendations();
-    } else {
-      console.log('Missing videoId or user is not logged in', { videoId, user });
-    }
-  }, [videoId, user, fetchRecommendations]); // Ensure fetchRecommendations is included in dependency array
+  };
   
-
+  useEffect(() => {
+    fetchRecommendations();
+  }, [videoId, user]); // Run this effect when `videoId` or `user` changes
+  
+  async function fetchVideoDetails(videoId, token) {
+    const response = await fetch(`http://localhost:1324/api/users/${userIdCreater}/videos/${videoId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch video details: ${response.status} ${response.statusText}`);
+    }
+    return response.json();
+  }
+  
   const userHasLiked = videoC?.likes?.some(like => like.userId === loggedId && like.action === 'like');
   const userHasDisliked = videoC?.likes?.some(like => like.userId === loggedId && like.action === 'dislike');
   const likeCount = videoC?.likes?.filter(like => like.action === 'like').length || 0;
