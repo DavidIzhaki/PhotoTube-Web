@@ -51,10 +51,7 @@ function SignIn() {
             } 
             else{
                 alert('Invalid username or password');          
-            }
-
-               
-               
+            }      
     };
 
 

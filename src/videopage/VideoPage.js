@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useContext, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
 
@@ -155,6 +155,67 @@ function VideoPage() {
 
   };
 
+
+  
+  const fetchVideoDetails = useCallback(async (vidId, token) => {
+    const response = await fetch(`http://localhost:1324/api/videos/${vidId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch video details: ${response.status} ${response.statusText}`);
+    }
+    return response.json();
+  }, []);
+
+  const fetchRecommendations = useCallback(async () => {
+    if (!user) {
+      console.log("User must be logged in to fetch recommendations.");
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.log("No token found, user must be logged in.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:1324/api/videos/${videoId}/recommendations`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch recommendations: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data.recommendations && data.recommendations.length) {
+        const videoDetails = await Promise.all(data.recommendations.map(vidId => fetchVideoDetails(vidId, token)));
+        setVideoList(videoDetails);
+        console.log('Recommendations fetched successfully:', videoDetails);
+      } else {
+        console.log('No recommendations found or empty recommendations array');
+      }
+    } catch (error) {
+      console.error('Error fetching recommendations:', error);
+    }
+  }, [videoId, user, fetchVideoDetails]);
+
+  useEffect(() => {
+    console.log('Video ID has changed to:', videoId); // Check if videoId updates
+    if (videoId && user) {
+      fetchRecommendations();
+    } else {
+      console.log('Missing videoId or user is not logged in', { videoId, user });
+    }
+  }, [videoId, user, fetchRecommendations]); // Ensure fetchRecommendations is included in dependency array
+  
 
   const userHasLiked = videoC?.likes?.some(like => like.userId === loggedId && like.action === 'like');
   const userHasDisliked = videoC?.likes?.some(like => like.userId === loggedId && like.action === 'dislike');
