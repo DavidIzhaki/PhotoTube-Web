@@ -16,6 +16,7 @@ Phottubee_Web is the React-based frontend for the Phottubee social media platfor
   1. Make, delete, and update a comment.
   2. Like or dislike the video.
   3. If you created the video, you can edit or delete it.
+  4. List of recommended videos from the TCP server.
 
 - **UserInfo**: Edit your profile by changing the information that is already there. You can go there by clicking the Profile on the left menu after you login.
 
