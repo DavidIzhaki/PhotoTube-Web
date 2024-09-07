@@ -51,6 +51,7 @@ npm start
 
 ### Note
 
-Phottubee_Web is the frontend component of the Phottubee social media platform. To take advantage of all its features, such as video posting, commenting, and profile management, the backend server (PhotoTube-Server) needs to be running with the TCP server (PhotoTube-TCP-Server)
+Phottubee_Web is the frontend component of the Phottubee social media platform. To fully utilize features like video posting, commenting, and profile management, the backend server (PhotoTube-Server) must be running alongside the TCP server (PhotoTube-TCP-Server).
 
-For more information on setting up and running the backend, refer to the PhotoTube-Server README at https://github.com/DavidIzhaki/PhotoTube-Server and PhotoTube-TCP-Server README at [https://github.com/DavidIzhaki/PhotoTube-TCP-Server](https://github.com/DavidIzhaki/PhotoTube-TCP-Server)
+For more information on setting up and running the backend, refer to the PhotoTube-Server README at https://github.com/DavidIzhaki/PhotoTube-Server
+and the PhotoTube-TCP-Server README at [https://github.com/DavidIzhaki/PhotoTube-TCP-Server](https://github.com/DavidIzhaki/PhotoTube-TCP-Server)
