@@ -184,7 +184,8 @@ function VideoPage() {
       }
 
       const data = await response.json();
-      setVideoList(data);
+      const filteredVideos = data.filter(v => v._id !== videoId);
+      setVideoList(filteredVideos);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
     }
