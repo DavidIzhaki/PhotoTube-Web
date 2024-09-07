@@ -192,7 +192,7 @@ function VideoPage() {
 
   useEffect(() => {
     fetchRecommendations();
-  }, [videoId, user]); // Run this effect when `videoId` or `user` changes
+  }, [videoId]); // Run this effect when `videoId` or `user` changes
 
   async function fetchVideoDetails(videoId, token) {
     const response = await fetch(`http://localhost:1324/api/users/${userIdCreater}/videos/${videoId}`, {
