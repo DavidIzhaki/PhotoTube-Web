@@ -1,4 +1,4 @@
-# Phottubee_Web
+# PhotoTube_Web
 
 Phottubee_Web is the React-based frontend for the Phottubee social media platform, designed to seamlessly integrate with the Phottubee_Server's API endpoints. This client-side application offers users an intuitive interface to interact with the platform's key features, including video creation, commenting on videos, user profile customization, and adding users.
 
@@ -37,7 +37,7 @@ Clone the repository and install the necessary dependencies:
 
 ```
 git clone https://github.com/DavidIzhaki/Phottubee
-cd Phottubee_Web
+cd PhotoTube_Web
 npm install
 ```
 
