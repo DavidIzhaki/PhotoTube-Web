@@ -32,10 +32,6 @@ function VideoPage() {
         navigate('/');
       }
       setVideoC(videoData);
-      const videosResponse = await fetch('http://localhost:1324/api/videos');
-      const videosData = await videosResponse.json();
-      const filteredVideos = videosData.filter(v => v._id !== videoId);
-      setVideoList(filteredVideos);
     };
     fetchVideos();
   }, [videoId, userIdCreater, navigate]);
@@ -56,7 +52,7 @@ function VideoPage() {
   };
 
   const confirmDelete = async () => {
-       try {
+    try {
       const response = await fetch(`http://localhost:1324/api/users/${userIdCreater}/videos/${videoId}`, {
         method: 'DELETE',
         headers: {
@@ -95,7 +91,7 @@ function VideoPage() {
       alert("You must be logged in to like videos.");
       return;
     }
-    
+
     try {
       const response = await fetch(`http://localhost:1324/api/users/${loggedId}/videos/${videoId}/like`, {
         method: 'PATCH',
@@ -156,14 +152,13 @@ function VideoPage() {
   };
 
   const fetchRecommendations = async () => {
-    if (!user || !videoId) {
-      console.log("User must be logged in and videoId must be available to fetch recommendations.");
-      return;
-    }
-  
+
     const token = localStorage.getItem('token');
     if (!token) {
-      console.log("No token found, user must be logged in.");
+      const videosResponse = await fetch('http://localhost:1324/api/videos');
+      const videosData = await videosResponse.json();
+      const filteredVideos = videosData.filter(v => v._id !== videoId);
+      setVideoList(filteredVideos);
       return;
     }
     const userId2 = localStorage.getItem('userId');
@@ -173,8 +168,8 @@ function VideoPage() {
         userId: userId2,
         videoId: videoId
       };
-     
-  
+
+
       const response = await fetch(`http://localhost:1324/api/videos/recommendations`, {
         method: 'POST',
         headers: {
@@ -183,28 +178,22 @@ function VideoPage() {
         },
         body: JSON.stringify(payload)
       });
-  
+
       if (!response.ok) {
         throw new Error(`Failed to fetch recommendations: ${response.status} ${response.statusText}`);
       }
-  
+
       const data = await response.json();
-      if (data.recommendations && data.recommendations.length) {
-        const videoDetails = await Promise.all(data.recommendations.map(vidId => fetchVideoDetails(vidId, token)));
-        setVideoList(videoDetails);
-        console.log('Recommendations fetched successfully:', videoDetails);
-      } else {
-        console.log('No recommendations found or empty recommendations array');
-      }
+      setVideoList(data);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
     }
   };
-  
+
   useEffect(() => {
     fetchRecommendations();
   }, [videoId, user]); // Run this effect when `videoId` or `user` changes
-  
+
   async function fetchVideoDetails(videoId, token) {
     const response = await fetch(`http://localhost:1324/api/users/${userIdCreater}/videos/${videoId}`, {
       method: 'GET',
@@ -217,11 +206,11 @@ function VideoPage() {
     }
     return response.json();
   }
-  
+
   const userHasLiked = videoC?.likes?.some(like => like.userId === loggedId && like.action === 'like');
   const userHasDisliked = videoC?.likes?.some(like => like.userId === loggedId && like.action === 'dislike');
   const likeCount = videoC?.likes?.filter(like => like.action === 'like').length || 0;
-  const isCreator = user &&loggedId === userIdCreater;
+  const isCreator = user && loggedId === userIdCreater;
 
   return (
     <div className='video-page'>
@@ -242,14 +231,14 @@ function VideoPage() {
               <div className="video-details-page">
                 <div className='video-img-dir-page'>
                   <span className='video-title-page'>{videoC.title} </span>
-                  
+
                   <div className='video-delete-update-icon'>
                     <span className='span-margin'><GoShare size={30} onClick={() => toggleModal('share')} /></span>
-                    {isCreator ? 
-                    (<>
-                    <span className='span-margin'><LuFileEdit onClick={() => toggleModal('update')} style={{ marginBottom: 1 }} /></span>
-                    <span><MdOutlineDelete onClick={() => toggleModal('delete')} /></span>
-                    </>) : null}        
+                    {isCreator ?
+                      (<>
+                        <span className='span-margin'><LuFileEdit onClick={() => toggleModal('update')} style={{ marginBottom: 1 }} /></span>
+                        <span><MdOutlineDelete onClick={() => toggleModal('delete')} /></span>
+                      </>) : null}
                   </div>
                 </div>
 
@@ -257,7 +246,7 @@ function VideoPage() {
                   <div>
                     <img className='video-img-page' onClick={handleUserClick} src={`http://localhost:${videoC.creatorImg}`} alt="video thumbnail" /><span> {videoC.createdBy}</span>
                   </div>
-                  
+
 
                   <div className="like-dislike-container">
                     <div className="like-dislike-button">
@@ -286,6 +275,10 @@ function VideoPage() {
           )}
         </div>
         <div className="video-bar">
+          <div style={{textAlign:'center',fontSize:30}}>
+          {user ? <span>Recommended Videos</span> : <span>Videos</span>}
+          </div>
+          <hr />
           <VideoListRightList videos={videoList} />
         </div>
       </div>
@@ -293,10 +286,10 @@ function VideoPage() {
         <ConfirmationModal show={showModal.isVisible} onClose={() => toggleModal('delete')} onConfirm={confirmDelete} name="video" />
       )}
       {showModal.type === 'update' && (
-          <UpdateVideoModal 
-          show={showModal.isVisible} 
-          onClose={() => toggleModal('update')} 
-          video={videoC} 
+        <UpdateVideoModal
+          show={showModal.isVisible}
+          onClose={() => toggleModal('update')}
+          video={videoC}
           id={userIdCreater}
           pid={videoId}
           onUpdate={(updatedVideo) => setVideoC(updatedVideo)}
