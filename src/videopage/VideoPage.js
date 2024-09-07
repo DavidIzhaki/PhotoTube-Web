@@ -37,6 +37,49 @@ function VideoPage() {
   }, [videoId, userIdCreater, navigate]);
 
   useEffect(() => {
+    const fetchRecommendations = async () => {
+      setVideoList([]);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        const videosResponse = await fetch('http://localhost:1324/api/videos');
+        const videosData = await videosResponse.json();
+        const filteredVideos = videosData.filter(v => v._id !== videoId);
+        setVideoList(filteredVideos);
+        return;
+      }
+      const userId2 = localStorage.getItem('userId');
+  
+      try {
+        const payload = {
+          userId: userId2,
+          videoId: videoId
+        };
+  
+  
+        const response = await fetch(`http://localhost:1324/api/videos/recommendations`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`, // Include the token here
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Failed to fetch recommendations: ${response.status} ${response.statusText}`);
+        }
+  
+        const data = await response.json();
+        const filteredVideos = data.filter(v => v._id !== videoId);
+        setVideoList(filteredVideos);
+      } catch (error) {
+        console.error('Error fetching recommendations:', error);
+      }
+    };
+    fetchRecommendations();
+  }, [videoId]); // Run this effect when `videoId` or `user` changes
+
+  useEffect(() => {
     if (videoC && videoRef.current) {
       videoRef.current.src = `http://localhost:${videoC.videoUrl}`;
       videoRef.current.load();
@@ -151,49 +194,6 @@ function VideoPage() {
 
   };
 
-  const fetchRecommendations = async () => {
-
-    const token = localStorage.getItem('token');
-    if (!token) {
-      const videosResponse = await fetch('http://localhost:1324/api/videos');
-      const videosData = await videosResponse.json();
-      const filteredVideos = videosData.filter(v => v._id !== videoId);
-      setVideoList(filteredVideos);
-      return;
-    }
-    const userId2 = localStorage.getItem('userId');
-
-    try {
-      const payload = {
-        userId: userId2,
-        videoId: videoId
-      };
-
-
-      const response = await fetch(`http://localhost:1324/api/videos/recommendations`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`, // Include the token here
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch recommendations: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const filteredVideos = data.filter(v => v._id !== videoId);
-      setVideoList(filteredVideos);
-    } catch (error) {
-      console.error('Error fetching recommendations:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchRecommendations();
-  }, [videoId]); // Run this effect when `videoId` or `user` changes
 
   async function fetchVideoDetails(videoId, token) {
     const response = await fetch(`http://localhost:1324/api/users/${userIdCreater}/videos/${videoId}`, {
